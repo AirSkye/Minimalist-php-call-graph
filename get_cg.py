@@ -135,21 +135,19 @@ def gen_cg(methods, funcs, path, exclude_folders, include_folders):
             fList = set()
 
             # 根据被调用者中是否含有'\\'来检查是函数还是方法
-            if "\\" not in callee:
+            if callee and "\\" not in callee:
                 # 匹配函数列表
-                name = getMatchFuncs(funcs, callee);
-                if name:
-                    matched_funcs = list(name)
-                    if not matched_funcs:  # 如果没有匹配到自定义函数，假设它是原生PHP函数
-                        cg[caller]["native"].append(callee)
-                        data[caller]["native"].append(callee)
-                    fList.update(matched_funcs)
-                    # logging.warning("----- 找到被调用函数 [%s]" % (callee))
-                    # 获取匹配的方法并将它们添加到函数列表中
-                    for f in getMatchMethods(methods, callee):
-                        fList.add(f)
-                else:
-                    logging.warning("----- 未匹配到被调用函数 [%s]" % (callee))
+                # if name:
+                matched_funcs = list(getMatchFuncs(funcs, callee))
+                if not matched_funcs:  # 如果没有匹配到自定义函数，假设它是原生PHP函数
+                    cg[caller]["native"].append(callee)
+                    data[caller]["native"].append(callee)
+                fList.update(matched_funcs)
+                # logging.warning("----- 找到被调用函数 [%s]" % (callee))
+                # 获取匹配的函数并将它们添加到函数列表中
+                for f in getMatchMethods(methods, callee):
+                    fList.add(f)
+                    # logging.warning("----- 未匹配到被调用函数 [%s]" % (callee))
             else:
                 # 为方法被调用者获取匹配的方法
                 name = getMatchMethods(methods, callee)
