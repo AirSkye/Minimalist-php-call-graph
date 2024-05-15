@@ -208,8 +208,8 @@ def main(argv):
     PATH =  'output/'
     json_output = "output.json"
     db_name = ""
-    php_source_dir = "D:/phpStudy1/PHPTutorial/WWW/Topsrc-dev/"
-    exclude_list = ['ThinkPHP','Topsec_Alpha_Lab@mysql','vendor']
+    php_source_dir = ""
+    exclude_list = []
     include_list = []
     # 解析命令行参数
     try:
