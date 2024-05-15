@@ -7,7 +7,7 @@ import subprocess
 import shutil
 from tqdm import tqdm
 
-IMPROVE_CANDID_SELECTION = True
+IMPROVE_CANDID_SELECTION = False
 
 def load_files(path):
     ## read function files
@@ -77,6 +77,9 @@ def gen_cg(methods, funcs, path, exclude_folders, include_folders):
     # 从文本文件读取调用图数据
     cg_file = open(path + "calls.txt", 'r').readlines()
 
+    # 使用正则表达式替换每行内容中的 `#\d#`
+    pattern = re.compile(r'#\d#|#\d')
+    cg_file = [pattern.sub('#', line) for line in cg_file]
     # 初始化字典来存储调用图和反向调用图
     cg = {}
     cg_rev = {}
@@ -118,7 +121,8 @@ def gen_cg(methods, funcs, path, exclude_folders, include_folders):
         else:
             # 仅添加被调用者，不计算它们被调用的次数
             for c in line.strip("\n").split("->")[1].split("#")[1:]:
-                callees.add(c)
+                if c:  # 检查c是否为空
+                    callees.add(c)
 
         # 初始化调用者在调用图中，并分别记录被调用的函数和原生函数
         cg[caller] = {"called": [], "native": []}
@@ -132,20 +136,28 @@ def gen_cg(methods, funcs, path, exclude_folders, include_folders):
 
             # 根据被调用者中是否含有'\\'来检查是函数还是方法
             if "\\" not in callee:
-                matched_funcs = list(getMatchFuncs(funcs, callee))
-                if not matched_funcs:  # 如果没有匹配到自定义函数，假设它是原生PHP函数
-                    cg[caller]["native"].append(callee)
-                    data[caller]["native"].append(callee)
-                fList.update(matched_funcs)
-                # 获取匹配的方法并将它们添加到函数列表中
-                logging.warning("----- 找到被调用函数 [%s]" % (callee))
-                for f in getMatchMethods(methods, callee):
-                    fList.add(f)
+                # 匹配函数列表
+                name = getMatchFuncs(funcs, callee);
+                if name:
+                    matched_funcs = list(name)
+                    if not matched_funcs:  # 如果没有匹配到自定义函数，假设它是原生PHP函数
+                        cg[caller]["native"].append(callee)
+                        data[caller]["native"].append(callee)
+                    fList.update(matched_funcs)
+                    # logging.warning("----- 找到被调用函数 [%s]" % (callee))
+                    # 获取匹配的方法并将它们添加到函数列表中
+                    for f in getMatchMethods(methods, callee):
+                        fList.add(f)
+                else:
+                    logging.warning("----- 未匹配到被调用函数 [%s]" % (callee))
             else:
                 # 为方法被调用者获取匹配的方法
-                mList.update(list(getMatchMethods(methods, callee)))
-
-                logging.warning("----- 找到被调用方法 [%s]" % (callee))
+                name = getMatchMethods(methods, callee)
+                if name:
+                    mList.update(list(name))
+                    # logging.warning("----- 找到被调用方法 [%s]" % (callee))
+                else:
+                    logging.warning("----- 未匹配到被调用方法 [%s]" % (callee))
 
 
             # 如果被调用者包含动态函数调用，则跳过处理
@@ -193,11 +205,11 @@ Options:
 
 def main(argv):
     # 配置默认的输出和路径
-    PATH = 'output/'
+    PATH =  'output/'
     json_output = "output.json"
     db_name = ""
-    php_source_dir = ""
-    exclude_list = ['sys']
+    php_source_dir = "D:/phpStudy1/PHPTutorial/WWW/Topsrc-dev/"
+    exclude_list = ['ThinkPHP','Topsec_Alpha_Lab@mysql','vendor']
     include_list = []
     # 解析命令行参数
     try:
