@@ -2,7 +2,7 @@
 
 ## 项目介绍
 
-该项目从[USENIX Security 2023](https://www.usenix.org/conference/usenixsecurity23/presentation/jahanshahi)会议中提取并封装了PHP调用图生成部分的核心代码。其主要功能是生成PHP项目的函数和方法调用图，以便开发者和安全研究人员分析代码调用关系。
+该项目从[USENIX Security 2023](https://www.usenix.org/conference/usenixsecurity23/presentation/jahanshahi)会议中提取并封装了PHP调用图生成部分的核心代码，[翻译的视频地址](https://www.bilibili.com/video/BV1DD421A7sN/?spm_id_from=333.999.0.0)。其主要功能是生成PHP项目的函数和方法调用图，以便开发者和安全研究人员分析代码调用关系。
 
 ## 目录结构
 
